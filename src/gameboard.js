@@ -5,7 +5,7 @@ function Gameboard(){
     const ships = new Map()
 
     function placeShip(len,x,y){
-        if(x+len<10){
+        if(x+len<=10){
             const ship = Ship(len)
             for(let i = x;i<x+len;i++){
                 grid[y][i] = "S"
@@ -22,21 +22,25 @@ function Gameboard(){
         console.log(hitLoc)
         if(!hitLoc){
             grid[y][x] = "X"
-            return false
-        }else{
+            return true
+        }else if(hitLoc == "S"){
             grid[y][x] = "H"
             ships.get(x+""+y).hit()
             return true
+        }else{
+            return false
         }
     }
 
     function allShipsSunk(){
+        let allSunk = true
         ships.values().forEach(ship => {
-            if(ship.isSunk()){
-                return false
+            if(!ship.isSunk()){
+                console.log("yup")
+                allSunk = false
             }
         });
-        return true
+        return allSunk
     }
 
     function printGrid(){
@@ -49,7 +53,7 @@ function Gameboard(){
         })
     }
 
-    return {grid,placeShip,recieveAttack, allShipsSunk}
+    return {grid,placeShip,recieveAttack, allShipsSunk, printGrid}
 }
 
 module.exports = Gameboard

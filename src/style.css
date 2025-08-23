@@ -1,0 +1,28 @@
+:root{
+    --empty: rgb(184, 184, 247);
+    --miss: rgb(115, 115, 248);
+    --ship: grey;
+    --hit: red;
+}
+
+.cell.hit{
+    background-color: var(--hit);
+}
+
+.cell.miss{
+    background-color: var(--miss);
+}
+
+.cell.ship{
+    background-color: var(--ship);
+}
+
+.cell{
+    background-color: var(--empty);
+}
+
+.board{
+    display: grid;
+    grid-template-columns: repeat(10,30px);
+    grid-template-rows: repeat(10,30px);
+}
