@@ -1,4 +1,4 @@
-const Player = require("./player")
+const Player = require("./factories/player")
 
 let player1;
 let player2;
