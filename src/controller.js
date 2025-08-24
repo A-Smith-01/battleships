@@ -3,7 +3,7 @@ const Player = require("./factories/player")
 let player1;
 let player2;
 const content = document.createElement("div")
-content.classList.add("game-contianer")
+content.classList.add("game-container")
 
 function startGame(){
     player1 = new Player("Player")
