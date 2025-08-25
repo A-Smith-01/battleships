@@ -2,17 +2,20 @@ const Player = require("./factories/player")
 
 let player1;
 let player2;
+const parent = document.querySelector(".content")
 const content = document.createElement("div")
 content.classList.add("game-container")
+parent.appendChild(content)
 
-function startGame(){
+async function startGame(){
     player1 = new Player("Player")
 
-    player1.gameboard.placeShip(5,3,3)
-    player1.gameboard.placeShip(3,3,1)
-    player1.gameboard.placeShip(4,0,7)
-    player1.gameboard.placeShip(2,8,9)
-    player1.gameboard.placeShip(2,0,0)
+    
+    await placeShip(player1,5)
+    await placeShip(player1,4)
+    await placeShip(player1,3)
+    await placeShip(player1,3)
+    await placeShip(player1,2)
     
     player1.gameboard.printGrid()
 
@@ -25,7 +28,61 @@ function startGame(){
     player2.gameboard.placeShip(2,0,0)
 
     renderGame()
-    return content
+    // return content
+}
+
+// async function placeShip(player, length){
+
+//     await renderPlacementOverlay()
+// }
+
+function placeShip(player, length, vertical){
+    return new Promise((resolve) => {
+        const placementModal = document.createElement("div")
+        const header = document.createElement("h2")
+        header.textContent = "Place your ships"
+        const board = document.createElement("div")
+        board.classList.add("board")
+
+        const cellGrid = new Array(10).fill(1).map(() => new Array(10))
+        for(let y=0;y<10;y++){
+            for(let x=0;x<10;x++){
+                const cell = document.createElement("div")
+                cell.classList.add("cell")
+                if(player.gameboard.grid[y][x]){
+                    cell.classList.add("ship")
+                }
+                cellGrid[y][x] = cell
+                board.appendChild(cell)
+
+                cell.addEventListener("mouseover",() => {
+                    if(player.gameboard.validPlacement(length,x,y,vertical)){
+                        for(let i=x;i<x+length;i++){
+                            cellGrid[y][i].style.backgroundColor = 'lightgrey'
+                        }
+                    }
+                })
+
+                cell.addEventListener("mouseout",() => {
+                    if(player.gameboard.validPlacement(length,x,y,vertical)){
+                        for(let i=x;i<x+length;i++){
+                            cellGrid[y][i].style.backgroundColor = ''
+                        }
+                    }
+                })
+
+                cell.addEventListener("click",() => {
+                    if(player.gameboard.validPlacement(length,x,y,vertical)){
+                        player.gameboard.placeShip(length,x,y,vertical)
+                        resolve()
+                    }
+                })
+            }
+        }
+        placementModal.appendChild(header)
+        placementModal.appendChild(board)
+        content.replaceChildren(placementModal)
+    })
 }
 
 function nextTurn(){
@@ -115,7 +172,6 @@ function displayWinner(player){
 }
 
 function handleClick(x,y,gameboard){
-    console.log(x+"  "+y)
     if(gameboard.recieveAttack(x,y)){
         nextTurn()
     }
