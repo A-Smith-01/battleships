@@ -24,7 +24,7 @@ function startGame(){
     player2.gameboard.placeShip(2,8,8)
     player2.gameboard.placeShip(2,0,0)
 
-    nextTurn()
+    renderGame()
     return content
 }
 
@@ -33,6 +33,7 @@ function nextTurn(){
     if(player2.gameboard.allShipsSunk()){
         // Handle end game
         console.log("Player 1 won!")
+        displayWinner(player1)
         return
     }
 
@@ -43,6 +44,7 @@ function nextTurn(){
     if(player1.gameboard.allShipsSunk()){
         // Handle end game
         console.log("Player 2 won!")
+        displayWinner(player2)
         return
     }
 
@@ -75,6 +77,8 @@ function renderBoard(player,hideShips){
                 cell.classList.add("hit")
             }else if(elem == "X"){
                 cell.classList.add("miss")
+            }else{
+                cell.classList.add("clickable")
             }
 
             if(hideShips){
@@ -89,6 +93,25 @@ function renderBoard(player,hideShips){
     container.appendChild(board)
 
     return container
+}
+
+function displayWinner(player){
+    const winnerModal = document.createElement("div")
+    winnerModal.classList.add("winner-modal")
+
+    const winnerMessage = document.createElement("h1")
+    winnerMessage.textContent = player1.name + " won!"
+
+    const newGameBut = document.createElement("button")
+    newGameBut.textContent = "New game"
+    newGameBut.addEventListener("click", () => {
+        startGame()
+    })
+
+    winnerModal.appendChild(winnerMessage)
+    winnerModal.appendChild(newGameBut)
+
+    content.replaceChildren(winnerModal)
 }
 
 function handleClick(x,y,gameboard){
