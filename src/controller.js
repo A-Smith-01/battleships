@@ -21,68 +21,90 @@ async function startGame(){
 
     player2 = new Player("CPU")
 
-    player2.gameboard.placeShip(5,3,3)
-    player2.gameboard.placeShip(3,3,1)
-    player2.gameboard.placeShip(4,0,7)
-    player2.gameboard.placeShip(2,8,8)
-    player2.gameboard.placeShip(2,0,0)
+    generateRandomBoard(player2)
+    player2.gameboard.printGrid()
 
     renderGame()
-    // return content
 }
 
-// async function placeShip(player, length){
-
-//     await renderPlacementOverlay()
-// }
-
-function placeShip(player, length, vertical){
+function placeShip(player, length){
     return new Promise((resolve) => {
+        let vertical = false
         const placementModal = document.createElement("div")
         const header = document.createElement("h2")
         header.textContent = "Place your ships"
+        const tip = document.createElement("span")
+        tip.textContent = "Use RMB to rotate"
         const board = document.createElement("div")
         board.classList.add("board")
 
-        const cellGrid = new Array(10).fill(1).map(() => new Array(10))
-        for(let y=0;y<10;y++){
-            for(let x=0;x<10;x++){
-                const cell = document.createElement("div")
-                cell.classList.add("cell")
-                if(player.gameboard.grid[y][x]){
-                    cell.classList.add("ship")
-                }
-                cellGrid[y][x] = cell
-                board.appendChild(cell)
-
-                cell.addEventListener("mouseover",() => {
-                    if(player.gameboard.validPlacement(length,x,y,vertical)){
-                        for(let i=x;i<x+length;i++){
-                            cellGrid[y][i].style.backgroundColor = 'lightgrey'
-                        }
-                    }
-                })
-
-                cell.addEventListener("mouseout",() => {
-                    if(player.gameboard.validPlacement(length,x,y,vertical)){
-                        for(let i=x;i<x+length;i++){
-                            cellGrid[y][i].style.backgroundColor = ''
-                        }
-                    }
-                })
-
-                cell.addEventListener("click",() => {
-                    if(player.gameboard.validPlacement(length,x,y,vertical)){
-                        player.gameboard.placeShip(length,x,y,vertical)
-                        resolve()
-                    }
-                })
+        const resolveFunc = (x,y,vertical) => {
+            if(player.gameboard.validPlacement(length,x,y,vertical)){
+                    player.gameboard.placeShip(length,x,y,vertical)
+                    resolve()
             }
         }
+
+        board.addEventListener("contextmenu",(e) => {
+            e.preventDefault()
+            vertical = !vertical
+            drawPlacementGrid(player,length,vertical,board,resolveFunc)
+        })
+
+        drawPlacementGrid(player,length,vertical,board,resolveFunc)
+
         placementModal.appendChild(header)
+        placementModal.appendChild(tip)
         placementModal.appendChild(board)
         content.replaceChildren(placementModal)
     })
+}
+
+function drawPlacementGrid(player, length, vertical, container, resolveFunc){
+    container.replaceChildren()
+    const cellGrid = new Array(10).fill(1).map(() => new Array(10))
+    for(let y=0;y<10;y++){
+        for(let x=0;x<10;x++){
+            const cell = document.createElement("div")
+            cell.classList.add("cell")
+            if(player.gameboard.grid[y][x]){
+                cell.classList.add("ship")
+            }
+            cellGrid[y][x] = cell
+            container.appendChild(cell)
+
+            cell.addEventListener("mouseover",() => {
+                if(player.gameboard.validPlacement(length,x,y,vertical)){
+                    if(vertical){
+                        for(let i=y;i<y+length;i++){
+                        cellGrid[i][x].style.backgroundColor = 'lightgrey'
+                    }
+                }else{
+                    for(let i=x;i<x+length;i++){
+                        cellGrid[y][i].style.backgroundColor = 'lightgrey'
+                    }
+                }
+            }})
+
+            cell.addEventListener("mouseout",() => {
+                if(player.gameboard.validPlacement(length,x,y,vertical)){
+                    if(vertical){
+                        for(let i=y;i<y+length;i++){
+                        cellGrid[i][x].style.backgroundColor = ''
+                    }
+                }else{
+                    for(let i=x;i<x+length;i++){
+                        cellGrid[y][i].style.backgroundColor = ''
+                    }
+                }
+            }
+            })
+
+            cell.addEventListener("click",() => {
+                resolveFunc(x,y,vertical)
+            })
+        }
+    }
 }
 
 function nextTurn(){
@@ -185,6 +207,26 @@ function cpuTurn(){
     while(!player1.gameboard.recieveAttack(x,y)){
         y = Math.floor(Math.random() * 10)
         x = Math.floor(Math.random() * 10) 
+    }
+}
+
+function generateRandomBoard(player){
+    generateRandomPlacement(player,5)
+    generateRandomPlacement(player,4)
+    generateRandomPlacement(player,3)
+    generateRandomPlacement(player,3)
+    generateRandomPlacement(player,2)
+}
+
+function generateRandomPlacement(player, length){
+    let vertical = Math.random() < 0.5
+    let x = Math.floor(Math.random()*10)
+    let y = Math.floor(Math.random()*10)
+
+    while(!player.gameboard.placeShip(length,x,y,vertical)){
+        vertical = Math.random() < 0.5
+        x = Math.floor(Math.random()*10)
+        y = Math.floor(Math.random()*10)
     }
 }
 

@@ -19,6 +19,7 @@
 body{
     background-image: url("./assets/background.jpg");
     background-repeat: no-repeat;
+    background-size: 100%;
 }
 
 header{
@@ -69,6 +70,15 @@ header{
 
 .game-container > div{
     margin: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.game-container span{
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
 }
 
 h2{
